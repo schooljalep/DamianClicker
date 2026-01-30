@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Damian Clicker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --secondary: #f7931e;
+            --accent: #fdc500;
+            --dark: #2d3142;
+            --light: #fef9ef;
+            --success: #4ecdc4;
+            --purple: #9b59b6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(78, 205, 196, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .main-section {
+            background: var(--light);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 107, 53, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 3px 3px 0px var(--accent);
+            letter-spacing: -2px;
+            animation: titleBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--dark);
+            font-family: 'Space Mono', monospace;
+            text-shadow: 2px 2px 0px var(--success);
+        }
+
+        .per-second {
+            font-size: 1.2rem;
+            color: var(--purple);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .click-area {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .damian-btn {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 8px solid var(--primary);
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 
+                0 10px 30px rgba(255, 107, 53, 0.4),
+                inset 0 -8px 20px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .damian-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .damian-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(255, 107, 53, 0.5),
+                inset 0 -8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .damian-btn:active {
+            transform: scale(0.95);
+            box-shadow: 
+                0 5px 15px rgba(255, 107, 53, 0.3),
+                inset 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .damian-btn:active::before {
+            opacity: 1;
+        }
+
+        .damian-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .click-power {
+            margin-top: 15px;
+            font-size: 1.3rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .upgrades-section, .tools-section {
+            background: var(--light);
+            border-radius: 30px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 2px 2px 0px var(--accent);
+        }
+
+        .upgrade {
+            background: linear-gradient(135deg, #fff, #f8f8f8);
+            border: 3px solid var(--dark);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .upgrade:hover {
+            transform: translateX(8px);
+            box-shadow: -8px 8px 0px var(--accent);
+            border-color: var(--primary);
+        }
+
+        .upgrade:hover::before {
+            transform: scaleY(1);
+        }
+
+        .upgrade.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .upgrade-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .upgrade-info {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .upgrade-count {
+            background: var(--success);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .tools {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            background: linear-gradient(135deg, var(--success), #45b7aa);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.5);
+        }
+
+        .tool-btn:active {
+            transform: translateY(0);
+        }
+
+        .secret-input {
+            width: 100%;
+            padding: 12px;
+            border: 3px solid var(--dark);
+            border-radius: 15px;
+            font-size: 1rem;
+            font-family: 'Space Mono', monospace;
+            margin-bottom: 10px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .secret-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+        }
+
+        .floating-number {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+            color: var(--primary);
+            pointer-events: none;
+            text-shadow: 2px 2px 0px var(--accent);
+            animation: floatUp 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s forwards;
+            z-index: 2000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .damian-btn {
+                width: 220px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-section">
+            <h1>DAMIAN CLICKER</h1>
+            
+            <div class="score-display">
+                <div class="score" id="score">0</div>
+                <div class="per-second">per second: <span id="perSecond">0</span></div>
+            </div>
+
+            <div class="click-area">
+                <button class="damian-btn" id="damianBtn">
+                    <img src="Damian.png" alt="Damian" class="damian-img">
+                </button>
+                <div class="click-power">+<span id="clickPower">1</span> per click</div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="upgrades-section">
+                <h2 class="section-title">UPGRADES</h2>
+                <div id="upgradesContainer"></div>
+            </div>
+
+            <div class="tools-section">
+                <h2 class="section-title">TOOLS</h2>
+                <div class="tools">
+                    <input type="text" id="secretCode" class="secret-input" placeholder="Enter secret code...">
+                    <button class="tool-btn" id="saveBtn">💾 SAVE GAME</button>
+                    <button class="tool-btn" id="resetBtn">🔄 RESET GAME</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            score: 0,
+            clickPower: 1,
+            perSecond: 0,
+            upgrades: [
+                {
+                    id: 'cursor',
+                    name: '🖱️ Auto Clicker',
+                    baseCost: 15,
+                    cost: 15,
+                    count: 0,
+                    production: 0.1,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'grandma',
+                    name: '👵 Damian Fan',
+                    baseCost: 100,
+                    cost: 100,
+                    count: 0,
+                    production: 1,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'farm',
+                    name: '🌾 Damian Farm',
+                    baseCost: 1100,
+                    cost: 1100,
+                    count: 0,
+                    production: 8,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'mine',
+                    name: '⛏️ Damian Mine',
+                    baseCost: 12000,
+                    cost: 12000,
+                    count: 0,
+                    production: 47,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'factory',
+                    name: '🏭 Damian Factory',
+                    baseCost: 130000,
+                    cost: 130000,
+                    count: 0,
+                    production: 260,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'bank',
+                    name: '🏦 Damian Bank',
+                    baseCost: 1400000,
+                    cost: 1400000,
+                    count: 0,
+                    production: 1400,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'temple',
+                    name: '🛕 Damian Temple',
+                    baseCost: 20000000,
+                    cost: 20000000,
+                    count: 0,
+                    production: 7800,
+                    multiplier: 1.15
+                },
+                {
+                    id: 'portal',
+                    name: '🌀 Damian Portal',
+                    baseCost: 330000000,
+                    cost: 330000000,
+                    count: 0,
+                    production: 44000,
+                    multiplier: 1.15
+                }
+            ]
+        };
+
+        // DOM Elements
+        const scoreEl = document.getElementById('score');
+        const perSecondEl = document.getElementById('perSecond');
+        const clickPowerEl = document.getElementById('clickPower');
+        const damianBtn = document.getElementById('damianBtn');
+        const upgradesContainer = document.getElementById('upgradesContainer');
+        const secretCodeInput = document.getElementById('secretCode');
+        const saveBtn = document.getElementById('saveBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Load saved game
+        function loadGame() {
+            const saved = localStorage.getItem('damianClickerSave');
+            if (saved) {
+                const savedState = JSON.parse(saved);
+                gameState.score = savedState.score || 0;
+                gameState.clickPower = savedState.clickPower || 1;
+                
+                // Restore upgrade counts and recalculate costs
+                savedState.upgrades.forEach((savedUpgrade, index) => {
+                    if (gameState.upgrades[index]) {
+                        gameState.upgrades[index].count = savedUpgrade.count || 0;
+                        // Recalculate cost based on count
+                        gameState.upgrades[index].cost = Math.floor(
+                            gameState.upgrades[index].baseCost * 
+                            Math.pow(gameState.upgrades[index].multiplier, gameState.upgrades[index].count)
+                        );
+                    }
+                });
+                
+                showNotification('Game loaded! 🎮');
+            }
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('damianClickerSave', JSON.stringify(gameState));
+            showNotification('Game saved! 💾');
+        }
+
+        // Reset game
+        function resetGame() {
+            if (confirm('Are you sure you want to reset? All progress will be lost!')) {
+                localStorage.removeItem('damianClickerSave');
+                location.reload();
+            }
+        }
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return Math.floor(num).toString();
+        }
+
+        // Show floating number
+        function showFloatingNumber(value) {
+            const floater = document.createElement('div');
+            floater.className = 'floating-number';
+            floater.textContent = '+' + formatNumber(value);
+            
+            const rect = damianBtn.getBoundingClientRect();
+            floater.style.left = rect.left + rect.width / 2 - 25 + (Math.random() * 50 - 25) + 'px';
+            floater.style.top = rect.top + rect.height / 2 + 'px';
+            
+            document.body.appendChild(floater);
+            
+            setTimeout(() => floater.remove(), 1000);
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Calculate per second production
+        function calculatePerSecond() {
+            let total = 0;
+            gameState.upgrades.forEach(upgrade => {
+                total += upgrade.count * upgrade.production;
+            });
+            gameState.perSecond = total;
+        }
+
+        // Update display
+        function updateDisplay() {
+            scoreEl.textContent = formatNumber(gameState.score);
+            perSecondEl.textContent = formatNumber(gameState.perSecond);
+            clickPowerEl.textContent = formatNumber(gameState.clickPower);
+        }
+
+        // Render upgrades
+        function renderUpgrades() {
+            upgradesContainer.innerHTML = '';
+            
+            gameState.upgrades.forEach(upgrade => {
+                const upgradeDiv = document.createElement('div');
+                upgradeDiv.className = 'upgrade' + (gameState.score < upgrade.cost ? ' disabled' : '');
+                
+                upgradeDiv.innerHTML = `
+                    <div class="upgrade-name">${upgrade.name}</div>
+                    <div class="upgrade-info">
+                        <span>Cost: ${formatNumber(upgrade.cost)}</span>
+                        <span class="upgrade-count">${upgrade.count}</span>
+                    </div>
+                `;
+                
+                upgradeDiv.addEventListener('click', () => buyUpgrade(upgrade));
+                upgradesContainer.appendChild(upgradeDiv);
+            });
+        }
+
+        // Buy upgrade
+        function buyUpgrade(upgrade) {
+            if (gameState.score >= upgrade.cost) {
+                gameState.score -= upgrade.cost;
+                upgrade.count++;
+                upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.multiplier, upgrade.count));
+                calculatePerSecond();
+                updateDisplay();
+                renderUpgrades();
+                showNotification(`Bought ${upgrade.name}! 🎉`);
+            }
+        }
+
+        // Click handler
+        damianBtn.addEventListener('click', () => {
+            gameState.score += gameState.clickPower;
+            showFloatingNumber(gameState.clickPower);
+            updateDisplay();
+            renderUpgrades();
+        });
+
+        // Secret code handler
+        secretCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const code = secretCodeInput.value.trim();
+                if (code === 'Dam1an') {
+                    gameState.score += 10000000;
+                    showNotification('🎊 SECRET CODE ACTIVATED! +10M Damians! 🎊');
+                    updateDisplay();
+                    renderUpgrades();
+                    secretCodeInput.value = '';
+                } else {
+                    showNotification('❌ Invalid code!');
+                    secretCodeInput.value = '';
+                }
+            }
+        });
+
+        // Save button
+        saveBtn.addEventListener('click', saveGame);
+
+        // Reset button
+        resetBtn.addEventListener('click', resetGame);
+
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+
+        // Production loop (every 100ms for smooth updates)
+        setInterval(() => {
+            if (gameState.perSecond > 0) {
+                gameState.score += gameState.perSecond / 10;
+                updateDisplay();
+                renderUpgrades();
+            }
+        }, 100);
+
+        // Initialize game
+        loadGame();
+        calculatePerSecond();
+        updateDisplay();
+        renderUpgrades();
+    </script>
+</body>
+</html>
